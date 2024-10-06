@@ -2,6 +2,9 @@ import { useRef, useState } from "react";
 import { marked } from "marked";
 import DOMPurify from "dompurify";
 
+import Skeleton from "react-loading-skeleton"; // Import the skeleton loader
+import "react-loading-skeleton/dist/skeleton.css"; // Import skeleton styles
+
 marked.use({ gfm: true });
 
 function App() {
@@ -72,7 +75,23 @@ function App() {
       >
         <div style={{ margin: "0", width: "100%", height: "100%" }}>
           {loading ? (
-            "Loading ..."
+            <div>
+              <Skeleton
+                height={30}
+                width={`70%`}
+                style={{ borderRadius: "8px" }}
+              />
+              {/* Title Skeleton */}
+              <Skeleton
+                count={3}
+                height={20}
+                width={`70%`}
+                style={{ borderRadius: "8px" }}
+              />
+              {/* Paragraph Skeletons */}
+              {/* <Skeleton height={200} style={{ borderRadius: "8px" }} />{" "} */}
+              {/* Image Skeleton */}
+            </div>
           ) : error ? (
             <div style={{ color: "red" }}>Error: {error}</div>
           ) : (
