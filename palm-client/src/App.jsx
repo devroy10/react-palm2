@@ -6,6 +6,8 @@ marked.use({ gfm: true });
 
 function App() {
   const [serverData, setServerData] = useState({ html: "" });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const [userPrompt, setUserPrompt] = useState("");
   const inputRef = useRef(null);
 
@@ -18,7 +20,10 @@ function App() {
   }
 
   function handleSubmit() {
-    setServerData("");
+    setLoading(true); // Set loading to true at the start
+    setError(null); // Reset error before fetching
+    setServerData(""); // Clear previous server data
+
     if (userPrompt !== "") {
       fetch("/api", {
         method: "POST",
@@ -35,18 +40,19 @@ function App() {
         })
         .then((data) => {
           const html = DOMPurify.sanitize(marked(data));
-          setServerData((prevState) => ({
-            ...prevState, // Spread previous state
-            html: html, // Update only the html property
-          }));
+          setServerData({ html }); // Update server data
           inputRef.current.focus();
           setUserPrompt("");
-          // console.log(html);
-          // console.log("success");
         })
-        .catch((error) => {
-          console.error("Error", error);
+        .catch((err) => {
+          console.error("Error", err);
+          setError(err.message); // Set error message
+        })
+        .finally(() => {
+          setLoading(false); // Set loading to false after fetching
         });
+    } else {
+      setLoading(false); // Ensure loading is set to false if no user prompt
     }
   }
 
@@ -65,8 +71,10 @@ function App() {
         }}
       >
         <div style={{ margin: "0", width: "100%", height: "100%" }}>
-          {serverData === "" ? (
+          {loading ? (
             "Loading ..."
+          ) : error ? (
+            <div style={{ color: "red" }}>Error: {error}</div>
           ) : (
             <article
               style={{ margin: "0" }}
